@@ -1,0 +1,24 @@
+name: Auto Unzip
+on: [push, workflow_dispatch]
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip if zip exists
+        run: |
+          for z in *.zip; do
+            if [ -f "$z" ]; then
+              echo "Found $z - unzipping"
+              unzip -o "$z" -d .
+              rm "$z"
+            fi
+          done
+          ls -lh
+      - name: Commit extracted files
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@github.com"
+          git add .
+          git commit -m "auto unzip project" || echo "no changes"
+          git push || echo "push failed"
